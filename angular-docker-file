@@ -1,0 +1,24 @@
+#base image for build
+FROM node:14-alpine AS build
+
+# SETUP ANGULAR
+RUN npm install -g @angular/cli
+
+#SETUP APP Directory
+RUN mkdir /angular-app
+
+#SET APP CONTEXT
+WORKDIR /angular-app
+
+#Update app code
+COPY . /angular-app
+
+#Perform build steps
+RUN npm install
+RUN ng build
+
+#Base image for deploy
+FROM httpd
+
+#copy code from build steps
+COPY --from=build /angular-app/dist/angularCalc /usr/local/apache2/htdocs/
